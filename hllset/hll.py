@@ -117,8 +117,11 @@ class HyperLogLog:
         """
         # Store precision and registers
         data = bytes([self.precision])
-        # Pack registers efficiently (each register is at most 64-p bits)
+        # Pack registers efficiently (each register is at most 64-p+1, so fits in a byte)
+        # Validate registers are in valid range
         for reg in self.registers:
+            if not 0 <= reg <= 255:
+                raise ValueError(f"Register value {reg} out of byte range")
             data += bytes([reg])
         return data
     

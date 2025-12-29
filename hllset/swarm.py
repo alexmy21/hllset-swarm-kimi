@@ -23,15 +23,21 @@ class SwarmNode:
         node_id: Unique identifier for this node
         precision: HLL precision parameter (default 14)
         port: Port to listen on for incoming connections (default 0 = auto)
+        max_message_size: Maximum message size in bytes (default 10MB)
     """
     
-    def __init__(self, node_id: str, precision: int = 14, port: int = 0):
+    # Maximum message size to prevent memory exhaustion attacks
+    MAX_MESSAGE_SIZE = 10 * 1024 * 1024  # 10MB
+    
+    def __init__(self, node_id: str, precision: int = 14, port: int = 0, 
+                 max_message_size: int = None):
         self.node_id = node_id
         self.precision = precision
         self.hll = HyperLogLog(precision)
         self.peers: Dict[str, tuple] = {}  # peer_id -> (host, port)
         self.running = False
         self.lock = threading.Lock()
+        self.max_message_size = max_message_size or self.MAX_MESSAGE_SIZE
         
         # Set up listener
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -55,8 +61,11 @@ class SwarmNode:
         """Stop the swarm node listener."""
         self.running = False
         if self._listener_thread:
-            self.socket.close()
-            self._listener_thread.join(timeout=1)
+            self._listener_thread.join(timeout=2)
+            try:
+                self.socket.close()
+            except Exception:
+                pass  # Socket might already be closed
     
     def _listen(self) -> None:
         """Listen for incoming connections."""
@@ -79,19 +88,30 @@ class SwarmNode:
         """Handle an incoming connection."""
         try:
             data = b''
-            while True:
+            conn.settimeout(5.0)  # Timeout for receiving data
+            while len(data) < self.max_message_size:
                 chunk = conn.recv(4096)
                 if not chunk:
                     break
                 data += chunk
+                # Check if we've exceeded max size
+                if len(data) > self.max_message_size:
+                    # Discard oversized message
+                    return
             
             if data:
                 message = json.loads(data.decode('utf-8'))
                 self._process_message(message)
+        except (socket.timeout, json.JSONDecodeError, UnicodeDecodeError):
+            # Invalid or malformed message, ignore
+            pass
         except Exception:
             pass
         finally:
-            conn.close()
+            try:
+                conn.close()
+            except Exception:
+                pass
     
     def _process_message(self, message: dict) -> None:
         """Process a message from another node."""
