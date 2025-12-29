@@ -1,0 +1,2 @@
+# Core dependencies - intentionally minimal for light version
+# No external dependencies required for basic HLL functionality
