@@ -10,6 +10,7 @@ def ingest_stream(corpus_iter, hrt: SwarmHRT, swarm_iters_per_chunk: int = 3):
     for chunk_id, text in enumerate(corpus_iter):
         # ---- 3-gram window ----
         chunk_hashes = set()
+        h3_prev = None
         for i in range(len(text) - 2):
             w = text[i:i+3]
             h1, h2, h3 = HASH_FUNC(w[0]), HASH_FUNC(w[:2]), HASH_FUNC(w)
@@ -20,7 +21,11 @@ def ingest_stream(corpus_iter, hrt: SwarmHRT, swarm_iters_per_chunk: int = 3):
 
             hrt.add_edge(h1, h2)
             hrt.add_edge(h2, h3)
-            hrt.add_edge(h3, h1)
+            if h3_prev is not None:
+                hrt.add_edge(h3_prev, h1)
+
+            h3_prev = h3
+            
             # burn tokens into HLLSets
             hrt.row_hll[hrt.h2i[h1]].add(w[0])
             hrt.row_hll[hrt.h2i[h2]].add(w[:2])
