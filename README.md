@@ -208,15 +208,14 @@ Git log: 15 commits written → kime_git_log.json
 ## Folder map (what to read first)
 
 ```bash
-src/hllset_swarm/
-├── __init__.py
-├── hll.py          # 50-line Julia wrapper + unified hash
-├── hrt.py          # SwarmHRT: AM + row/col HLLSets + belief contraction
-├── ingest.py       # corpus → AM + swarm iterations
-├── commit.py       # git-style commit objects
-└── constants.py    # shared seeds, precision, hash func
-
-notebooks/
+src/
+   hllset_swarm/
+     ├── __init__.py
+     ├── hll.py          # 50-line Julia wrapper + unified hash
+     ├── hrt.py          # SwarmHRT: AM + row/col HLLSets + belief contraction
+     ├── ingest.py       # corpus → AM + swarm iterations
+     ├── commit.py       # git-style commit objects
+     └── constants.py    # shared seeds, precision, hash func
 └── kime_walkthrough.ipynb   # blog post in notebook form
 ```
 
@@ -233,12 +232,12 @@ Start here:
 [Wiki home](https://github.com/alexmy21/hllset-swarm-kimi/wiki)
 
 | Page | Why read |
-| ------ | ---------- |
-| **HLLSet Category** | Formal proof that **τ-ρ duality** eliminates false positives |
-| **Chinese Axioms** | Why **80 k glyphs** are **better than 1 M English words** |
-| **Wire-Only FPGA** | Verilog + spice plots → **0.3 pJ learn @ 2 ns** |
-| **Swarm Dynamics** | **Convex energy** → **≤ 10 steps** to any destination |
-| **LLM Co-Pilot API** | **OpenAI-compatible endpoint** that **keeps your secrets** |
+| ------------------------ | ---------- |
+| [1.-HLLSet-Framework](https://github.com/alexmy21/hllset-swarm-kimi/wiki/1.-HLLSet-Framework) | Formal proof that **τ-ρ duality** eliminates false positives |
+| [3.-Chinese-HLLSetCortex](https://github.com/alexmy21/hllset-swarm-kimi/wiki/3.-Chinese-HLLSetCortex) | Why **80 k glyphs** are **better than 1 M English words** |
+| [5.-Swarm_state_hopfield_hebb](https://github.com/alexmy21/hllset-swarm-kimi/wiki/5.-Swarm_state_hopfield_hebb) | Why we chose the non-backprop route for Wτ , Wρ |
+| [4.-HLLSet-swarm-vs--Anthropic](https://github.com/alexmy21/hllset-swarm-kimi/wiki/4.-HLLSet-swarm-vs--Anthropic) | Why Anthropic left the inference loop open and how we closed it safely |
+| [6.-1000-Layers-Networks-vs-HRT_AM_swarm](https://arxiv.org/abs/2503.14858) | How HRT AM swarm performs against other frameworks |
 
 ---
 
@@ -285,3 +284,9 @@ If you write about it, please link to this repo and the [wiki](https://github.co
 ---
 
 > **“Give us 4 kB of switches and we will remember you forever – or until the capacitors leak.”**
+
+## References
+
+1. [Deepseek Model from scratch](https://alain-airom.medium.com/book-review-build-a-deepseek-model-from-scratch-43de75b59a1f)
+2. [1000 Layer Networks for Self-Supervised RL](https://arxiv.org/abs/2503.14858)
+3. [1000 Layer Networks for Self-Supervised RL (git)](https://wang-kevin3290.github.io/scaling-crl/)

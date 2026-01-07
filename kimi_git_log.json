@@ -1,0 +1,83 @@
+[
+  {
+    "sha": "524b2b1",
+    "parent": "000000",
+    "meta": {
+      "chunk": 0,
+      "step": 0,
+      "mass": 1.0
+    }
+  },
+  {
+    "sha": "7a4ba89",
+    "parent": "524b2b1",
+    "meta": {
+      "chunk": 0,
+      "step": 1,
+      "mass": 1.0
+    }
+  },
+  {
+    "sha": "5114a9d",
+    "parent": "7a4ba89",
+    "meta": {
+      "chunk": 0,
+      "step": 2,
+      "mass": 1.0
+    }
+  },
+  {
+    "sha": "64e31fc",
+    "parent": "5114a9d",
+    "meta": {
+      "chunk": 1,
+      "step": 0,
+      "mass": 1.0
+    }
+  },
+  {
+    "sha": "1f12c5f",
+    "parent": "64e31fc",
+    "meta": {
+      "chunk": 1,
+      "step": 1,
+      "mass": 1.0
+    }
+  },
+  {
+    "sha": "3bc7c8e",
+    "parent": "1f12c5f",
+    "meta": {
+      "chunk": 1,
+      "step": 2,
+      "mass": 1.0
+    }
+  },
+  {
+    "sha": "18c6bb7",
+    "parent": "3bc7c8e",
+    "meta": {
+      "chunk": 2,
+      "step": 0,
+      "mass": 0.9999999403953552
+    }
+  },
+  {
+    "sha": "210b151",
+    "parent": "18c6bb7",
+    "meta": {
+      "chunk": 2,
+      "step": 1,
+      "mass": 1.0
+    }
+  },
+  {
+    "sha": "543c0d6",
+    "parent": "210b151",
+    "meta": {
+      "chunk": 2,
+      "step": 2,
+      "mass": 0.9999998807907104
+    }
+  }
+]

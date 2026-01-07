@@ -5,13 +5,19 @@ from .constants import HASH_FUNC
 
 def ingest_stream(corpus_iter, hrt: SwarmHRT, swarm_iters_per_chunk: int = 3):
     """generator yielding (belief_vector, commit_dict) for every chunk"""
-    p = torch.zeros(len(hrt.h2i), device="cuda")
+    p = torch.zeros(len(hrt.h2i), device="cuda", dtype=torch.float32)
     parent = "000000"
     for chunk_id, text in enumerate(corpus_iter):
         # ---- 3-gram window ----
+        chunk_hashes = set()
         for i in range(len(text) - 2):
             w = text[i:i+3]
             h1, h2, h3 = HASH_FUNC(w[0]), HASH_FUNC(w[:2]), HASH_FUNC(w)
+
+            hrt.h2token[h1] = w[0]
+            hrt.h2token[h2] = w[:2]
+            hrt.h2token[h3] = w
+
             hrt.add_edge(h1, h2)
             hrt.add_edge(h2, h3)
             hrt.add_edge(h3, h1)
@@ -19,6 +25,17 @@ def ingest_stream(corpus_iter, hrt: SwarmHRT, swarm_iters_per_chunk: int = 3):
             hrt.row_hll[hrt.h2i[h1]].add(w[0])
             hrt.row_hll[hrt.h2i[h2]].add(w[:2])
             hrt.row_hll[hrt.h2i[h3]].add(w)
+            # collect hashes for initialization
+            chunk_hashes.update([h1, h2, h3])
+        
+        # Initialize p with chunk tokens
+        p = torch.zeros(len(hrt.h2i), device="cuda")
+        for h in chunk_hashes:
+            if h in hrt.h2i:
+                p[hrt.h2i[h]] = 1.0
+        if p.sum() > 0:
+            p = p / p.sum()
+        
         # ---- swarm burn ----
         for step in range(swarm_iters_per_chunk):
             p = hrt.swarm_step(p)
