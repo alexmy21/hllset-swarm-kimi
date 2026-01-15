@@ -7,7 +7,7 @@
 
 ---
 
->**This project was created with a help from KIMI AI assistant.**
+>**This project was created with help and support from KIMI, DeepSeek and Github Copilot AI assistants.**
 ---
 
 ## 1-sentence elevator pitch
