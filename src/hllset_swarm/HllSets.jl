@@ -43,10 +43,11 @@ module HllSets
 
     include("constants.jl")
     using SHA 
+    using LinearAlgebra: norm, dot
 
     export HllSet, u_hash, add!, count, union, intersect, diff, isequal, isempty, id, delta, 
     set_xor, set_comp, set_added, set_deleted, 
-    getbin, getzeros, maxidx, match, cosine, dump, restore, 
+    getbin, getzeros, maxidx, match, cosine, dump, 
     to_binary_tensor, flatten_tensor, tensor_to_string, string_to_tensor, binary_tensor_to_hllset
 
     struct HllSet{P}
@@ -64,9 +65,7 @@ module HllSets
     end
 
     # Core HLL Operations --------------------------------------------------------
-
-    # Core HLL Operations --------------------------------------------------------
-
+ 
     """
     add!(hll::HllSet{P}, x::Any; seed::Int=0)
 
@@ -104,116 +103,111 @@ module HllSets
 
     # Helper Functions ----------------------------------------------------------
 
-    function _validate_compatible(x::HllSet{P}, y::HllSet{P}) where {P}
-        length(x.counts) == length(y.counts) || 
-            throw(ArgumentError("HLL sets must have same precision"))
+    """
+        ispow2(n::Integer) -> Bool
+    
+    Check if n is a power of 2.
+    """
+    ispow2(n::Integer) = n > 0 && (n & (n - 1)) == 0
+
+    function _validate_compatible(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
+        P1 == P2 || throw(ArgumentError("HLL sets must have same precision (P=$P1 vs P=$P2)"))
     end
 
     # Set Operations ------------------------------------------------------------
 
     """
-        union(x::HllSet{P}, y::HllSet{P}) where {P}
-
-    Compute union of two HLL sets.
+        union!(dest::HllSet{P}, src::HllSet{P}) where {P}
+    
+    In-place union of two HLL sets.
     """
     function Base.union!(dest::HllSet{P}, src::HllSet{P}) where {P}
-        _validate_compatible(dest, src)
-
         @inbounds for i in 1:length(dest.counts)
-            dest.counts[i] = dest.counts[i] .| src.counts[i]
+            dest.counts[i] = dest.counts[i] | src.counts[i]
         end
         return dest
     end
 
-    function Base.union(x::HllSet{P}, y::HllSet{P}) where {P} 
+    """
+        union(x::HllSet{P}, y::HllSet{P}) where {P}
+    
+    Compute union of two HLL sets.
+    """
+    function Base.union(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
         _validate_compatible(x, y)
-
-        z = HllSet{P}()
+        
+        z = HllSet{P1}()  # Use P1 instead of undefined P
         @inbounds for i in 1:length(x.counts)
-            z.counts[i] = x.counts[i] .| y.counts[i]
+            z.counts[i] = x.counts[i] | y.counts[i]
         end
         return z
     end
 
     """
-        intersect(x::HllSet{P}, y::HllSet{P}) where {P}
-
+        intersect(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
+    
     Compute intersection of two HLL sets.
     """
-    function Base.intersect(x::HllSet{P}, y::HllSet{P}) where {P} 
+    function Base.intersect(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
         _validate_compatible(x, y)
-
-        z = HllSet{P}()
-        @inbounds for i in 1:length(x.counts)
-            z.counts[i] = x.counts[i] .& y.counts[i]
-        end
-        return z
-    end
-
-    """
-        diff(hll_1::HllSet{P}, hll_2::HllSet{P}) where {P}
-
-    Compute difference between two HLL sets.
-    """
-    function Base.diff(hll_1::HllSet{P}, hll_2::HllSet{P}) where {P}
-        _validate_compatible(hll_1, hll_2)
         
-        n = HllSet{P}()
-        d = HllSet{P}()
-        r = HllSet{P}()
-
-        d = set_comp(hll_1, hll_2)
-        n = set_comp(hll_2, hll_1)
-        r = intersect(hll_1, hll_2)
-
-        return (DEL = d, RET = r, NEW = n)
+        z = HllSet{P1}()  # Use P1 instead of undefined P
+        @inbounds for i in 1:length(x.counts)
+            z.counts[i] = x.counts[i] & y.counts[i]
+        end
+        return z
     end
 
     """
-        set_comp(x::HllSet{P}, y::HllSet{P}) where {P}
-
-    Compute difference between two HLL sets as a y compliment to x. Return y elements that are not in x.
+        set_comp(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
+    
+    Compute difference between two HLL sets as a y complement to x. 
+    Return x elements that are not in y.
     """
-
-    function set_comp(x::HllSet{P}, y::HllSet{P}) where {P} 
+    function set_comp(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
         _validate_compatible(x, y)
-
-        z = HllSet{P}()
+        
+        z = HllSet{P1}()  # Use P1 instead of undefined P
         @inbounds for i in 1:length(x.counts)
-            z.counts[i] = .~y.counts[i] .& x.counts[i]
+            z.counts[i] = x.counts[i] & ~y.counts[i]
         end
         return z
     end
 
     """
-        set_added(x::HllSet{P}, y::HllSet{P}) where {P}
-
-    Compute difference between two HLL sets as a x compliment to y. Return x elements that are not in y.
+        set_xor(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
+    
+    Compute XOR of two HLL sets.
     """
-    function set_xor(x::HllSet{P}, y::HllSet{P}) where {P} 
-        length(x.counts) == length(y.counts) || throw(ArgumentError("HllSet{P} must have same size"))
-        z = HllSet{P}()
+    function set_xor(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
+        _validate_compatible(x, y)
+        
+        z = HllSet{P1}()  # Use P1 instead of undefined P
         @inbounds for i in 1:length(x.counts)
-            z.counts[i] = xor.(x.counts[i], (y.counts[i]))
+            z.counts[i] = xor(x.counts[i], y.counts[i])
         end
         return z
     end
 
     """
-        copy(dest::HllSet{P}, src::HllSet{P}) where {P}
-
-    creates copy of HllSet{P} object from src to dest
+        copy!(dest::HllSet{P1}, src::HllSet{P2}) where {P1, P2}
+    
+    Copy src HllSet to dest HllSet.
     """
-    function Base.copy!(dest::HllSet{P}, src::HllSet{P}) where {P}
-        length(dest.counts) == length(src.counts) || throw(ArgumentError("HllSet{P} must have same size"))
+    function Base.copy!(dest::HllSet{P1}, src::HllSet{P2}) where {P1, P2}
+        _validate_compatible(dest, src)
         @inbounds for i in 1:length(dest.counts)
             dest.counts[i] = src.counts[i]
         end
         return dest
     end
 
+    """
+        copy!(src::HllSet{P}) where {P}
+    
+    Create a copy of the HllSet.
+    """
     function Base.copy!(src::HllSet{P}) where {P}
-        # length(dest.counts) == length(src.counts) || throw(ArgumentError("HllSet{P} must have same size"))
         dest = HllSet{P}()
         @inbounds for i in 1:length(src.counts)
             dest.counts[i] = src.counts[i]
@@ -222,19 +216,77 @@ module HllSets
     end  
 
     """
-        isequal(x::HllSet{P}, y::HllSet{P}) where {P}
-
+        isequal(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
+    
     Check if two HLL sets are equal.
     """    
-    function Base.isequal(x::HllSet{P}, y::HllSet{P}) where {P} 
-        length(x.counts) == length(y.counts) || throw(ArgumentError("HllSet{P} must have same size"))
-        @inbounds for i in 1:length(x.counts)
-            x.counts[i] == y.counts[i] || return false
-        end
-        return true
+    function Base.isequal(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
+        _validate_compatible(x, y)
+        return x.counts == y.counts
     end    
 
-    Base.isempty(x::HllSet{P}) where {P} = all(all, x.counts)   
+    Base.isempty(x::HllSet{P}) where {P} = all(iszero, x.counts)   
+
+    # ...rest of existing code...
+
+    """
+        match(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
+    
+    Compute the Jaccard similarity between two HLL sets.
+    """
+    function Base.match(x::HllSet{P1}, y::HllSet{P2}) where {P1, P2}
+        _validate_compatible(x, y)
+        
+        count_u = count(Base.union(x, y))
+        count_i = count(Base.intersect(x, y))
+        
+        if count_u == 0
+            return 0
+        end
+        
+        return round(Int64, ((count_i / count_u) * 100))
+    end
+
+    """
+        cosine(hll_1::HllSet{P1}, hll_2::HllSet{P2}) where {P1, P2}
+    
+    Compute the cosine similarity between two HLL sets.
+    """
+    function cosine(hll_1::HllSet{P1}, hll_2::HllSet{P2}) where {P1, P2}
+        _validate_compatible(hll_1, hll_2)
+
+        v1 = convert(Vector{Float64}, hll_1.counts)
+        v2 = convert(Vector{Float64}, hll_2.counts)
+        
+        norm1 = norm(v1)
+        norm2 = norm(v2)
+        
+        if norm1 == 0.0 || norm2 == 0.0
+            return 0.0
+        end
+        
+        return dot(v1, v2) / (norm1 * norm2)
+    end
+
+    """
+        diff(hll_1::HllSet{P}, hll_2::HllSet{P}) where {P}
+
+    Compute difference between two HLL sets.
+    """
+    function Base.diff(hll_1::HllSet{P1}, hll_2::HllSet{P2}) where {P1, P2}
+        _validate_compatible(hll_1, hll_2)
+        
+        n = HllSet{P1}()
+        d = HllSet{P1}()
+        r = HllSet{P1}()
+
+        d = set_comp(hll_1, hll_2)
+        n = set_comp(hll_2, hll_1)
+        r = intersect(hll_1, hll_2)
+
+        return (DEL = d, RET = r, NEW = n)
+    end
+     
 
     """
         count(x::HllSet{P}) where {P}
@@ -245,7 +297,7 @@ module HllSets
         # Harmonic mean estimates cardinality per bin. There are 2^P bins
         harmonic_mean = sizeof(x) / sum(1 / 1 << maxidx(i) for i in x.counts)
         biased_estimate = α(x) * sizeof(x) * harmonic_mean
-        return round(Int, biased_estimate - bias(x, biased_estimate))
+        return max(0, round(Int, biased_estimate - bias(x, biased_estimate) - 1))
     end
 
     """
@@ -308,35 +360,6 @@ module HllSets
         total_bits = sizeof(x) * 8
         leading_zeros_count = leading_zeros(x)
         return total_bits - leading_zeros_count
-    end
-
-    # Match Operations ------------------------------------------------------------
-
-    """
-        match(x::HllSet{P}, y::HllSet{P}) where {P}
-    Compute the Jaccard similarity between two HLL sets.
-    """
-    function Base.match(x::HllSet{P}, y::HllSet{P}) where {P}
-        length(x.counts) == length(y.counts) || throw(ArgumentError("HllSet{P} must have same size"))
-        
-        count_u = count(union(x, y))
-        count_i = count(intersect(x, y))
-        return round(Int64, ((count_i / count_u) * 100))
-    end
-
-    """
-        cosine(hll_1::HllSet{P}, hll_2::HllSet{P}) where {P}
-    Compute the cosine similarity between two HLL sets.
-    """
-    function cosine(hll_1::HllSet{P}, hll_2::HllSet{P}) where {P}
-        length(hll_1.counts) == length(hll_2.counts) || throw(ArgumentError("HllSet{P} must have same size"))
-
-        v1 = hll_1.counts
-        v2 = hll_2.counts
-        if norm(v1) == 0 || norm(v2) == 0
-            return 0.0
-        end
-        return dot(v1, v2) / (norm(v1) * norm(v2))
     end
 
     # Serialization and Deserialization ----------------------------------------
@@ -437,46 +460,6 @@ module HllSets
     Base.show(io::IO, x::HllSet{P}) where {P} = println(io, "HllSet{$(P)}()")
 
     Base.sizeof(::Type{HllSet{P}}) where {P} = 1 << P
-    Base.sizeof(x::HllSet{P}) where {P} = sizeof(typeof(x))
-
-    # Depricated Functions --------------------------------------------------
-    
-    function Base.dump(x::HllSet{P}) where {P}
-        # Base.depwarn("dump(hll::HllSet{P}) is deprecated, use getcounts(x::Int; P::Int=10) instead.", :getbin)
-        # For safety - this is also enforced in the HLL constructor
-        if P < 4 || P > 18
-            error("We only have dump for P ∈ 4:18")
-        end
-        
-        return x.counts
-    end
-
-    function restore!(z::HllSet{P}, x::Vector{UInt32}) where {P} 
-        # For safety - this is also enforced in the HLL constructor
-        if P < 4 || P > 18
-            error("We only have restore for P ∈ 4:18")
-        end
-        if length(x) != length(z.counts)
-            error("The length of the vector must be equal to the length of the HllSet")
-        end        
-        # z.counts = x
-        @inbounds for i in 1:length(x)
-            z.counts[i] = x[i]
-        end
-        return z
-    end
-
-    function restore!(z::HllSet{P}, x::String) where {P}
-        # For safety - this is also enforced in the HLL constructor
-        if P < 4 || P > 18
-            error("We only have restore for P ∈ 4:18")
-        end
-        dataset = JSON3.read(x, Vector{UInt32})
-        
-        @inbounds for i in 1:length(x)
-            z.counts[i] = x[i]
-        end
-        return z
-    end 
+    Base.sizeof(x::HllSet{P}) where {P} = sizeof(typeof(x))   
 
 end

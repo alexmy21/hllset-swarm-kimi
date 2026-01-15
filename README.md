@@ -27,7 +27,7 @@ HLLSet-Swarm turns the **mathematical duality** between
 
 into a **declarative GPU kernel compiler** that lets you **script** how a 80 k-dimensional “semantic swarm” should move, converge and **write its final state back** to any external system (LLM, DB, robot, …) as **live feedback**.
 
-Think *“Git for meaning”* – every trajectory ends with a content-addressed commit that immortalises the swarm’s belief state.
+Think *“Git for meaning”* – every trajectory ends with a content-addressed commit that immortalizes the swarm’s belief state.
 
 ---
 
@@ -290,3 +290,4 @@ If you write about it, please link to this repo and the [wiki](https://github.co
 1. [Deepseek Model from scratch](https://alain-airom.medium.com/book-review-build-a-deepseek-model-from-scratch-43de75b59a1f)
 2. [1000 Layer Networks for Self-Supervised RL](https://arxiv.org/abs/2503.14858)
 3. [1000 Layer Networks for Self-Supervised RL (git)](https://wang-kevin3290.github.io/scaling-crl/)
+4. [Category Theory of Transformer](https://satyamcser.medium.com/functors-in-disguise-the-hidden-category-theory-of-transformer-attention-d286aeb240a4)
