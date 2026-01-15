@@ -121,7 +121,9 @@ class TokenSpaceDB:
         # Hash all tokens
         hll = HLL(P_BITS=precision)
         results = hll.add(tokens, seed=seed)
-        print(f"Hashed {results}")
+
+        if self.debug:
+            print(f"Hashed {results}")
         
         if not results:
             raise ValueError("No results from HLL.add()")
@@ -317,8 +319,10 @@ class MultiSeedDisambiguator:
             space_ids[seed] = space_id
             
             info = self.db.get_space_info(space_id)
-            print(f"  Seed {seed}: space_id={space_id}, "
-                  f"entries={info['num_entries']}, registers={info['num_registers']}")
+
+            if self.debug:
+                print(f"  Seed {seed}: space_id={space_id}, "
+                    f"entries={info['num_entries']}, registers={info['num_registers']}")
         
         # Step 3: Match TokenSpace against HLL counts
         print("\nStep 3: Querying candidates from database...")
