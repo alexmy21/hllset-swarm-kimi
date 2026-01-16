@@ -254,3 +254,4 @@ If you write about it, please link to this repo and the [wiki](https://github.co
 3. [1000 Layer Networks for Self-Supervised RL (git)](https://wang-kevin3290.github.io/scaling-crl/)
 4. [Category Theory of Transformer](https://satyamcser.medium.com/functors-in-disguise-the-hidden-category-theory-of-transformer-attention-d286aeb240a4)
 5. [Ac Studio](https://medium.com/@acamvproducingstudio/welcome-to-ac-studio-read-this-first-77a38848daaa)
+
