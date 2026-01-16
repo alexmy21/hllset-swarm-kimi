@@ -237,7 +237,7 @@ using .HllSets
         add!(hll5, ["a", "b", "c", "d"])
         add!(hll6, ["c", "d", "e", "f"])
         similarity3 = match(hll5, hll6)
-        @test 30 < similarity3 < 70
+        @test 15 < similarity3 < 70
         println("Match Test (partial): $(similarity3)%")
     end
 

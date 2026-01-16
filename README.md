@@ -3,7 +3,7 @@
 *A wire-level, self-generating AI micro-platform – no training, no back-prop, just geometry that learns.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status](https://img.shields.io/badge/status-concept-demo-blue)](https://github.com/alexmy21/hllset-swarm-kime)
+[![Status](https://img.shields.io/badge/status-Demo_POC-blue.svg)](https://github.com/alexmy21/hllset-swarm-kimi)
 
 ---
 
@@ -96,15 +96,6 @@ Environment  ◄──feedback──  Github commit  ◄──layer blob──�
 | `ROSAdapter` | publish `Float32MultiArray` on `/semantic_state` |
 | `StdoutAdapter` | debug JSON to console |
 
-Add your own:
-
-```python
-from hllset_swarm.io import BaseAdapter
-class MyAdapter(BaseAdapter):
-    def update_embedding(self, vec: np.ndarray):
-        requests.post("http://my.api/embedding", data=vec.tobytes())
-```
-
 ---
 
 ## 🌍 Beyond Chinese – any *"hieroglyphic"* substrate
@@ -180,50 +171,21 @@ Same YAML, same GPU kernel, **different universe**.
 
 ---
 
-## 60-second demo (copy-paste runnable)
-
-```bash
-git clone https://github.com/alexmy21/hllset-swarm-kime
-cd hllset-swarm-kime
-pip install -e .
-python -m hllset_swarm.demo
-```
-
-Output:
-
-```bash
-=== ingest ===
-AM shape: (2811, 2811)  nnz:  8 492
-=== inertial swarm ===
-step 5  tokens: 人工智能发展趋势未来
-=== guided → "未来世界" ===
-arrived in 4 steps: 未来世界发展展望
-Git log: 15 commits written → kime_git_log.json
-```
-
-**No network call, no gradient, no training data – just 200 lines of PyTorch and Julia glue.**
-
----
-
 ## Folder map (what to read first)
 
 ```bash
 src/
    hllset_swarm/
-     ├── __init__.py
-     ├── hll.py          # 50-line Julia wrapper + unified hash
-     ├── hrt.py          # SwarmHRT: AM + row/col HLLSets + belief contraction
-     ├── ingest.py       # corpus → AM + swarm iterations
-     ├── commit.py       # git-style commit objects
-     └── constants.py    # shared seeds, precision, hash func
-└── kime_walkthrough.ipynb   # blog post in notebook form
+     ├── hll.py               # 50-line Julia wrapper + unified hash
+     ├── hrt.py               # SwarmHRT: AM + row/col HLLSets
+     ├── ingest.py            # corpus → AM + swarm iterations
+     └── constants.py         # shared seeds, precision, hash func
+├── hllset.ipynb              # HLLSet playground
+├── entanglement_poc.ipynb    # Entanglement Introduction
+├── desambiguation_poc.ipynb  # Restoring Original data from HLLSet
+├── workthrough.ipynb         # Simplified Work through using sets
+└── kimi_workthrough.ipynb    # HLLSet work through (in progress)
 ```
-
-Start here:
-
-1. `notebooks/kime_walkthrough.ipynb` – **interactive blog** (math + code)  
-2. `src/hllset_swarm/hrt.py` – **core 120 lines** (swarm logic)  
-3. `main.py` – **30-line CLI** (end-to-end demo)
 
 ---
 
@@ -291,3 +253,4 @@ If you write about it, please link to this repo and the [wiki](https://github.co
 2. [1000 Layer Networks for Self-Supervised RL](https://arxiv.org/abs/2503.14858)
 3. [1000 Layer Networks for Self-Supervised RL (git)](https://wang-kevin3290.github.io/scaling-crl/)
 4. [Category Theory of Transformer](https://satyamcser.medium.com/functors-in-disguise-the-hidden-category-theory-of-transformer-attention-d286aeb240a4)
+5. [Ac Studio](https://medium.com/@acamvproducingstudio/welcome-to-ac-studio-read-this-first-77a38848daaa)
