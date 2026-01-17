@@ -9,10 +9,10 @@ from typing import List, Dict, Optional, Any
 import matplotlib.pyplot as plt
 
 # ------------------------------------------------------------
-# 1. Import your HLL wrapper
+# 1. Import HLL wrapper
 # ------------------------------------------------------------
-# Adjust this import path to where your hll.py lives
-from .hll import HLL, AddResult  # <--- Use your wrapper
+# Adjust this import path to where hll.py lives
+from .hll import HLL, AddResult  # 
 from .constants import P_BITS, SHARED_SEED
 
 # ------------------------------------------------------------
@@ -45,41 +45,7 @@ class CortexVector:
 # ------------------------------------------------------------
 # 3. AM Builder using proper HLL probabilistic counts
 # ------------------------------------------------------------
-# def build_am(corpus: List[str], m: int, ngram: int = 2, device: str = 'cpu') -> tsp.FloatTensor:
-#     """
-#     Build sparse adjacency matrix using HLLSets.jl for true probabilistic counting.
-#     Each transition source -> dest is stored as an HLL to enable BSS computations.
-#     """
-#     # HLL for each source token (or use Radix/HashRelationTensor for production)
-#     src_hlls: Dict[int, HLL] = {}
-#     trans_counts = defaultdict(int)
-    
-#     for sent in corpus:
-#         chars = ["<START>"] + list(sent) + ["<END>"]
-#         for i in range(len(chars) - 1):
-#             src_hash = hash(chars[i]) & (m - 1)
-#             dst_token = chars[i + 1]
-            
-#             if src_hash not in src_hlls:
-#                 src_hlls[src_hash] = HLL(P_BITS)  # Proper Julia HLL
-            
-#             # Add destination token to source HLL (probabilistic counting)
-#             src_hlls[src_hash].add(dst_token)
-#             trans_counts[(src_hash, dst_token)] += 1
-    
-#     # Build sparse matrix from transition frequencies (stochastic)
-#     if not trans_counts:
-#         idx = torch.empty((2, 0), dtype=torch.long, device=device)
-#         val = torch.empty((0,), dtype=torch.float32, device=device)
-#     else:
-#         idx = torch.tensor(list(trans_counts.keys()), dtype=torch.long, device=device).t()
-#         val = torch.tensor(list(trans_counts.values()), dtype=torch.float32, device=device)
-#         # Normalize rows
-#         row_sum = torch.zeros(m, dtype=torch.float32, device=device)
-#         row_sum.scatter_add_(0, idx[0], val).clamp_(min=1.0)
-#         val /= row_sum[idx[0]]
-    
-#     return tsp.FloatTensor(idx, val, torch.Size([m, m]))
+
 def build_am(corpus: List[str], m: int, ngram: int = 2, device: str = 'cpu') -> tsp.FloatTensor:
     """
     Build sparse adjacency matrix using HLLSets.jl for true probabilistic counting.
