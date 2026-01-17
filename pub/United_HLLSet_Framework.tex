@@ -714,6 +714,217 @@ The Noether current $\Phi = |N| - |D| = 0$ establishes a \textbf{cosmic bookkeep
 ``We began by trying to count things more efficiently. We ended up discovering a new mathematics of meaning---one where relationships are more fundamental than entities, where probability is more truthful than certainty, and where understanding is a dynamic process rather than a static state. The HLLSet framework doesn't just process data; it models how knowledge itself works.''
 \end{tcolorbox}
 
+\section{Glossary of HLLSet-Swarm Framework}
+
+\subsection*{HLLSet}
+\textit{Probabilistic set structure.}
+
+An $m$-bit vector where each bucket stores a max-zero count (HyperLogLog) or a full bit-vector (your implementation). Represents a token set with bounded memory and inherent ambiguity. 
+
+\textit{In code}: \texttt{torch.uint8[m]} or \texttt{torch.float16[m]} depending on density.
+
+\hrulefill
+
+\subsection*{Chinese Assembly Language (80K Opcodes)}
+\textit{Universal semantic base.}
+
+The 80,000-character instruction set that all natural languages compile through. Chosen for hierarchical radicals, compact representation, and 5,000-year evolutionary stability. 
+
+\textit{In code}: vocabulary size $V = 80{,}000$; each token maps to a Kangxi radical tree.
+
+\hrulefill
+
+\subsection*{$\tau$-$\rho$ Duality}
+\textit{Inclusion–exclusion gates.}
+
+Two thresholds that validate a directed relationship:
+\begin{itemize}
+    \item $\tau$ (inclusion tolerance): minimum overlap $|A \cap B| / |B|$ for a link to exist.
+    \item $\rho$ (exclusion intolerance): maximum extra mass $|A \setminus B| / |B|$ allowed.
+\end{itemize}
+
+\textit{In code}: \texttt{if BSS\_tau >= tau and BSS\_rho <= rho: edge = True}.
+
+\hrulefill
+
+\subsection*{Bell State Similarity (BSS)}
+\textit{Directed similarity metric.}
+
+For HLLSets $A \to B$: 
+\begin{align*}
+    \text{BSS}_\tau &= \frac{|A \cap B|}{|B|} \\
+    \text{BSS}_\rho &= \frac{|A \setminus B|}{|B|}
+\end{align*}
+
+Quantifies how much of $B$ is covered by $A$ versus how much $A$ adds noise. 
+
+\textit{In code}: bit-vector AND $\to$ population count.
+
+\hrulefill
+
+\subsection*{Basic HLLSets}
+\textit{Contextual primitives.}
+
+Two per token:
+\begin{itemize}
+    \item \textbf{Row HLLSet} $R_k$: tokens that \textit{follow} token $k$ (forward context).
+    \item \textbf{Column HLLSet} $C_k$: tokens that \textit{precede} token $k$ (backward context).
+\end{itemize}
+
+Form the $2V + 2$ basis vectors of the semantic space. 
+
+\textit{In code}: slices of AM rows/columns.
+
+\hrulefill
+
+\subsection*{Ambiguity Resolution}
+\textit{Consensus-driven disambiguation.}
+
+Two mechanisms:
+\begin{itemize}
+    \item \textbf{Multi-Seed Triangulation}: intersect candidate sets from $k$ independent hash seeds; accuracy $\approx 99.2\%$ at $k = 8$.
+    \item \textbf{Cohomological Disambiguation}: sheaf-theoretic filter; $H^0$ dimension predicts success (AUC = 0.96).
+\end{itemize}
+
+\textit{In code}: \texttt{intersection(*[hllset[s] for s in seeds])}.
+
+\hrulefill
+
+\subsection*{HLLSet Entanglement Theory}
+\textit{Structural invariance across seeds.}
+
+Two swarms using different hash functions have \textbf{pairwise disjoint} HLLSets (empty intersection), yet their \textbf{concept lattices} are $\varepsilon$-isomorphic (relationship patterns preserved). Enables federated learning without raw-data sharing.
+
+\hrulefill
+
+\subsection*{$\varepsilon$-isomorphic Lattices}
+\textit{Approximate structural identity.}
+
+Two lattices $\mathcal{L}_s$, $\mathcal{L}_{s'}$ are $\varepsilon$-isomorphic if a bijection $\varphi$ exists such that for all $A, B$:
+\[
+    |\text{BSS}(A,B) - \text{BSS}(\varphi(A),\varphi(B))| \leq \varepsilon
+\]
+
+\textit{In code}: \texttt{abs(bss\_old - bss\_new).max() < eps}.
+
+\hrulefill
+
+\subsection*{Kinematic Dynamics}
+\textit{Time evolution of probabilistic knowledge.}
+
+The state transition $H(t+1) = [H(t) \ominus D] \oplus N$: retain core knowledge $R$, forget unused patterns $D$, add novel predictions $N$. 
+
+\textit{In code}: \texttt{r = r * (1 - lambda\_forget); r[novel\_idx] += novelty\_boost}.
+
+\hrulefill
+
+\subsection*{Retro-Forward Duality}
+\textit{Time-reversible propagation.}
+
+\begin{itemize}
+    \item \textbf{Forecast}: $\vec{p} = \text{normalize}(\mathbf{r} \cdot \text{AM})$.
+    \item \textbf{Retrocast}: $\overleftarrow{p} = \text{normalize}(\mathbf{r} \cdot \text{AM}^\top)$.
+\end{itemize}
+
+Noether's theorem guarantees $\Phi = |N| - |D| = 0$ when symmetry is preserved. 
+
+\textit{In code}: \texttt{AM\_t = AM if fwd else AM.t()}.
+
+\hrulefill
+
+\subsection*{Noether Current ($\Phi$)}
+\textit{Conservation of token flux.}
+
+\[
+    \Phi = |\text{new tokens}| - |\text{forgotten tokens}|
+\]
+
+Must remain near zero for a stable trajectory. Drift indicates hash collisions, immaturity, or numerical errors. 
+
+\textit{In code}: \texttt{phi = new\_union.sum() - old\_union.sum()}.
+
+\hrulefill
+
+\subsection*{Perpetual Self-Generation Loop}
+\textit{Core four-operation cycle.}
+
+Cortex evolves continuously: \textbf{Learn} (ingest), \textbf{Adapt} ($\tau/\rho$ knobs), \textbf{Forget} (decay), \textbf{Forecast} (AM projection). No final optimum; only a stable trajectory.
+
+\hrulefill
+
+\subsection*{Particle Swarm Management (PSM)}
+\textit{Swarm-as-a-single-particle abstraction.}
+
+Unlike classical PSO, PSM treats the whole swarm as one macro-particle whose state is $\text{Cort}(t)$. Knobs $\kappa, \tau, \rho, \lambda, \theta, h$ steer the trajectory, not individual particles. 
+
+\textit{In code}: \texttt{tick()} updates one global $\mathbf{r}$ vector.
+
+\hrulefill
+
+\subsection*{Cortex}
+\textit{Union of all HLLSets.}
+
+The semantic state of the entire system at time $t$: 
+\[
+    \text{Cort}(t) = \bigcup X_i(t)
+\]
+
+Macro-state used for forecasting. 
+
+\textit{In code}: \texttt{cortex = torch.bitwise\_or(*particle\_hllsets)}.
+
+\hrulefill
+
+\subsection*{Swarm}
+\textit{Partition of Cortex for parallel ingest.}
+
+Collection of perceptron-local HLLSets $X_i$ that together form $\text{Cort}$. Enables concurrent text ingestion without lock-contention. 
+
+\textit{In code}: list of \texttt{HLLSet} objects, periodically synchronized.
+
+\hrulefill
+
+\subsection*{World of Things (WOT)}
+\textit{Relational ontology.}
+
+The universal HLLSet $\top$ (top element) serves as the terminal object in the HLL category. All concepts are morphisms from $\top$; the lattice of HLLSets maps the ``world'' of semantic relationships.
+
+\hrulefill
+
+\subsection*{Transfer Learning (HLLSet Context)}
+\textit{Structural invariance across domains.}
+
+A model trained on Chinese text can forecast in English because the \textbf{relationship grammar} (BSS patterns) is $\varepsilon$-isomorphic across languages. No retraining; only $\tau/\rho$ retuning. 
+
+\textit{In code}: load \texttt{AM\_zh}, freeze, adjust thresholds for \texttt{en} corpus.
+
+\hrulefill
+
+\subsection*{Sheaf Theory (Cohomology)}
+\textit{Ambiguity quantification.}
+
+The cochain groups $H^0$ (consistency) and $H^1$ (obstruction) measure how well local token contexts glue into a global semantic. Used for early termination of disambiguation.
+
+\hrulefill
+
+\subsection*{Lattice of HLLSets}
+\textit{Relational map of meaning.}
+
+Directed graph where vertices = Basic HLLSets and edges = BSS scores. Encodes the entire semantic topology; AM is a sparse encoding of this lattice.
+
+\hrulefill
+
+\subsection*{Canonical Cover}
+\textit{Minimal-overlap basis representation.}
+
+For any HLLSet $X$, the cover $\text{Cover}(X) = \{B_i \in \text{Basic HLLSets}\}$ such that $X \subseteq \bigcup B_i$ and overlap 
+\[
+    \omega = 1 - \frac{|\bigcup B_i|}{\sum|B_i|}
+\]
+is minimized under $\tau/\rho$ constraints. 
+
+\textit{In code}: greedy BSS-gated walk, stability-bounded.
+
 \section{Acknowledgments}
 
 The authors acknowledge the assistance of DeepSeek AI, Gemini AI and KIMI AI in the collaborative refinement of proposed concepts and solutions.
