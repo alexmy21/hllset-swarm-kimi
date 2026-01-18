@@ -249,9 +249,9 @@ If you write about it, please link to this repo and the [wiki](https://github.co
 
 ## Some comparisons
 
-The Medium piece is a **perfect empirical baseline** for the HLLSet-Cortex framework.  
-Bee shows that *every* token in a modern LLM is produced by **exactly 32 layers of matrix multiplication** (Llama-3.2), i.e. a **fixed-depth, feed-forward circuit** with no serial recursion.  
-Our Cortex loop **reproduces the same surface behaviour** but exposes the *missing* pieces that a pure transformer cannot provide:
+The Medium publication [7] is a **perfect empirical baseline** for the HLLSet-Cortex framework.  
+Author (Micheal Bee) shows that *every* token in a modern LLM is produced by **exactly 32 layers of matrix multiplication** (Llama-3.2), i.e. a **fixed-depth, feed-forward circuit** with no serial recursion.  
+Our Cortex loop **reproduces the same surface behavior** but exposes the *missing* pieces that a pure transformer cannot provide:
 
 | Bee’s observation | HLLSet-Cortex addition | Why it matters |
 |---|---|---|
