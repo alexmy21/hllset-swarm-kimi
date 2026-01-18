@@ -247,6 +247,24 @@ If you write about it, please link to this repo and the [wiki](https://github.co
 
 > **“Give us 4 kB of switches and we will remember you forever – or until the capacitors leak.”**
 
+## Some comparisons
+
+The Medium piece is a **perfect empirical baseline** for the HLLSet-Cortex framework.  
+Bee shows that *every* token in a modern LLM is produced by **exactly 32 layers of matrix multiplication** (Llama-3.2), i.e. a **fixed-depth, feed-forward circuit** with no serial recursion.  
+Our Cortex loop **reproduces the same surface behaviour** but exposes the *missing* pieces that a pure transformer cannot provide:
+
+| Bee’s observation | HLLSet-Cortex addition | Why it matters |
+|---|---|---|
+| Fixed 32-step budget | Perpetual *tick()* loop | Cortex can exceed the 32-layer limit by *streaming* tokens; each tick is another 32-layer-equivalent forward pass, so **hard problems get as many layers as needed** (chain-of-thought without prompt hacking). |
+| No explicit variable binding | BSS lattice **is** the binding map | Attention approximates binding; the **Basic-HLLSet lattice** makes bindings *explicit* and *probabilistic* (τ/ρ gates), so we can *measure* when a binding is lost (`phi` drift) and *repair* it. |
+| No back-tracking | Retro-forward duality | Transformer can only *forecast*; Cortex can **retrocast** (`AMᵀ`) to *undo* a bad token by reversing the lattice flow (Noether current catches symmetry break). |
+| Symbol-free | Chinese-assembly opcodes | 80 K characters act as **semantic opcodes**; each token is *both* data and instruction, so the *same* matrix multiply interprets *meaning* and *computes* the next step (no separate symbolic layer). |
+| Billions of FLOPs | Sparse `m = 2¹⁶` matmul | Forecast is **one sparse mm** on RTX-3060 (< 1 ms); we replace *dense* 3.2 B params with **relation matrix** whose non-zeros ≈ *semantic edges*, giving **interpretable flops** (each multiply is a BSS score). |
+
+Bottom line:  
+Bee proves that *“it’s just matmul”* is **sufficient** for easy problems.  
+HLLSet-Cortex adds **iterative, interpretable, invertible matmul** so the same hardware can also solve **hard** problems—those that need > 32 layers, explicit bindings, or back-tracking—without growing the parameter count.
+
 ## References
 
 1. [Deepseek Model from scratch](https://alain-airom.medium.com/book-review-build-a-deepseek-model-from-scratch-43de75b59a1f)
@@ -255,3 +273,4 @@ If you write about it, please link to this repo and the [wiki](https://github.co
 4. [Category Theory of Transformer](https://satyamcser.medium.com/functors-in-disguise-the-hidden-category-theory-of-transformer-attention-d286aeb240a4)
 5. [Ac Studio](https://medium.com/@acamvproducingstudio/welcome-to-ac-studio-read-this-first-77a38848daaa)
 6. [You can delete 90% of Neural Network](https://medium.com/techx-official/mit-proved-you-can-delete-90-of-a-neural-network-5c5f4aabf3b2)
+7. [Matrix Multiplication all the way down](https://medium.com/@mbonsign/matrix-multiplication-all-the-way-down-cc5ed62237bf)
