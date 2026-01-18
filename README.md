@@ -199,7 +199,7 @@ src/
 | [3.-Chinese-HLLSetCortex](https://github.com/alexmy21/hllset-swarm-kimi/wiki/3.-Chinese-HLLSetCortex) | Why **80 k glyphs** are **better than 1 M English words** |
 | [5.-Swarm_state_hopfield_hebb](https://github.com/alexmy21/hllset-swarm-kimi/wiki/5.-Swarm_state_hopfield_hebb) | Why we chose the non-backprop route for Wτ , Wρ |
 | [4.-HLLSet-swarm-vs--Anthropic](https://github.com/alexmy21/hllset-swarm-kimi/wiki/4.-HLLSet-swarm-vs--Anthropic) | Why Anthropic left the inference loop open and how we closed it safely |
-| [6.-1000-Layers-Networks-vs-HRT_AM_swarm](https://arxiv.org/abs/2503.14858) | How HRT AM swarm performs against other frameworks |
+| [6.-1000-Layers-Networks-vs-HRT_AM_swarm](https://github.com/alexmy21/hllset-swarm-kimi/wiki/6.-1000-Layers-Networks-vs-HRT_AM_swarm) | How HRT AM swarm performs against other frameworks |
 
 ---
 
