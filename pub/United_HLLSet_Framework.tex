@@ -719,7 +719,7 @@ The Noether current $\Phi = |N| - |D| = 0$ establishes a \textbf{cosmic bookkeep
 \subsection*{HLLSet}
 \textit{Probabilistic set structure.}
 
-An $m$-bit vector where each bucket stores a max-zero count (HyperLogLog) or a full bit-vector (your implementation). Represents a token set with bounded memory and inherent ambiguity. 
+An $m$-bit vector where each bucket stores a max-zero count (HyperLogLog) or a full bit-vector (HLLSet implementation). Represents a token set with bounded memory and inherent ambiguity. 
 
 \textit{In code}: \texttt{torch.uint8[m]} or \texttt{torch.float16[m]} depending on density.
 
